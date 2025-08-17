@@ -6,14 +6,10 @@ create table users
     password varchar(255) not null
 );
 
-create table `groups`
+create table contact_groups
 (
-    id         bigint auto_increment primary key,
-    group_name varchar(255) not null,
-    user_id    bigint       not null,
-    constraint groups_users_id_fk
-        foreign key (user_id) references users (id)
-            on delete cascade
+    id         smallint auto_increment primary key,
+    group_name varchar(255) not null
 );
 
 create table contacts
@@ -25,10 +21,10 @@ create table contacts
     email      varchar(255) null,
     address    varchar(255) null,
     user_id    bigint       not null,
-    group_id   bigint       null,
+    group_id   smallint     null,
     constraint contacts_users_id_fk
         foreign key (user_id) references users (id)
             on delete cascade,
     constraint contacts_groups_id_fk
-        foreign key (group_id) references `groups` (id)
+        foreign key (group_id) references contact_groups (id)
 );
