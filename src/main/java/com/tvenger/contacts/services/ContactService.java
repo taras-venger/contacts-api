@@ -7,17 +7,15 @@ import com.tvenger.contacts.repositories.ContactRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class ContactService {
-    private ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
     private final ContactMapper contactMapper;
 
-    @GetMapping
     public List<ContactDto> getContacts(Long userId, Short groupId) {
         Specification<Contact> spec = (root, query, cb) -> cb.conjunction();
 
