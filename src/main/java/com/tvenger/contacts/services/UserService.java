@@ -1,5 +1,6 @@
 package com.tvenger.contacts.services;
 
+import com.tvenger.contacts.dtos.RegisterUserRequest;
 import com.tvenger.contacts.dtos.UserDto;
 import com.tvenger.contacts.mappers.UserMapper;
 import com.tvenger.contacts.repositories.UserRepository;
@@ -27,5 +28,15 @@ public class UserService {
                 .findById(id)
                 .map(userMapper::toDto)
                 .orElse(null); // service returns null if not found
+    }
+
+    public UserDto registerUser(RegisterUserRequest request) {
+        var user = userMapper.toEntity(request);
+        userRepository.save(user);
+        return userMapper.toDto(user);
+    }
+
+    public boolean isUserRegistered(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

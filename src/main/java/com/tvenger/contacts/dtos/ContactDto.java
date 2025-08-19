@@ -6,12 +6,12 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class ContactDto {
-    Long id;
-    String firstName;
-    String lastName;
-    String email;
-    String phone;
-    String address;
-    Long userId;
-    Short groupId;
+    private Long id;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phone;
+    private String address;
+    private Long userId;
+    private Short groupId;
 }
