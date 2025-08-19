@@ -2,6 +2,7 @@ package com.tvenger.contacts.services;
 
 import com.tvenger.contacts.dtos.RegisterUserRequest;
 import com.tvenger.contacts.dtos.UserDto;
+import com.tvenger.contacts.exceptions.EmailTakenException;
 import com.tvenger.contacts.mappers.UserMapper;
 import com.tvenger.contacts.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -31,12 +32,12 @@ public class UserService {
     }
 
     public UserDto registerUser(RegisterUserRequest request) {
+        var email = request.getEmail();
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailTakenException(email);
+        }
         var user = userMapper.toEntity(request);
         userRepository.save(user);
         return userMapper.toDto(user);
-    }
-
-    public boolean isUserRegistered(String email) {
-        return userRepository.existsByEmail(email);
     }
 }

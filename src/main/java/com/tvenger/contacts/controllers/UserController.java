@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Map;
-
 @AllArgsConstructor
 @RestController
 @RequestMapping("/users")
@@ -37,11 +35,6 @@ public class UserController {
             @RequestBody RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
     ) {
-        if (userService.isUserRegistered(request.getEmail())) {
-            return ResponseEntity.badRequest().body(
-                    Map.of("email", "Email is already registered")
-            );
-        }
         var userDto = userService.registerUser(request);
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
         return ResponseEntity.created(uri).body(userDto);
