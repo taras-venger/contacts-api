@@ -6,6 +6,7 @@ import com.tvenger.contacts.exceptions.EmailTakenException;
 import com.tvenger.contacts.mappers.UserMapper;
 import com.tvenger.contacts.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,8 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
 
     public List<UserDto> getUsers() {
         return userRepository
@@ -37,6 +40,7 @@ public class UserService {
             throw new EmailTakenException(email);
         }
         var user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return userMapper.toDto(user);
     }

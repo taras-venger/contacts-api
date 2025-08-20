@@ -4,6 +4,7 @@ import com.tvenger.contacts.exceptions.EmailTakenException;
 import com.tvenger.contacts.exceptions.GroupNotFoundException;
 import com.tvenger.contacts.exceptions.UserNotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,5 +40,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailTakenException.class)
     public ResponseEntity<Map<String, String>> handleGroupNotFound(EmailTakenException ex) {
         return ResponseEntity.status(409).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentials() {
+        return ResponseEntity.status(401).body(Map.of("error", "Email or password is incorrect"));
     }
 }
