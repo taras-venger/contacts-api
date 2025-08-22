@@ -9,13 +9,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
@@ -43,7 +41,7 @@ public class AuthController {
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
-        var cookie = new Cookie("refreshToken", refreshToken);
+        var cookie = new Cookie("refreshToken", refreshToken.toString());
         cookie.setHttpOnly(true);
         cookie.setPath("/auth/refresh");
         cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
@@ -51,6 +49,19 @@ public class AuthController {
 
         response.addCookie(cookie);
 
-        return ResponseEntity.ok(new JwtResponse(accessToken));
+        return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> refresh(
+            @CookieValue(name = "refreshToken") String refreshToken
+    ) {
+        var jwt = jwtService.parseToken(refreshToken);
+        if (jwt == null || jwt.isExpired()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        var user = userService.getUserById(jwt.getUserId());
+        var accessToken = jwtService.generateAccessToken(user);
+        return ResponseEntity.ok(new JwtResponse(accessToken.toString()));
     }
 }

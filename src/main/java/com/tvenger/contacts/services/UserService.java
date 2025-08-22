@@ -34,6 +34,13 @@ public class UserService {
                 .orElse(null); // service returns null if not found
     }
 
+    public UserDto getUserByEmail(String email) {
+        return userRepository
+                .findByEmail(email)
+                .map(userMapper::toDto)
+                .orElse(null);
+    }
+
     public UserDto registerUser(RegisterUserRequest request) {
         var email = request.getEmail();
         if (userRepository.existsByEmail(email)) {
@@ -43,12 +50,5 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return userMapper.toDto(user);
-    }
-
-    public UserDto getUserByEmail(String email) {
-        return userRepository
-            .findByEmail(email)
-            .map(userMapper::toDto)
-            .orElse(null);
     }
 }
