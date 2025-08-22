@@ -1,9 +1,12 @@
 package com.tvenger.contacts.controllers;
 
+import com.tvenger.contacts.config.JwtConfig;
 import com.tvenger.contacts.dtos.JwtResponse;
 import com.tvenger.contacts.dtos.LoginRequest;
 import com.tvenger.contacts.services.JwtService;
 import com.tvenger.contacts.services.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +24,13 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserService userService;
+    private final JwtConfig jwtConfig;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<JwtResponse> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletResponse response
+    ) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
@@ -33,8 +40,17 @@ public class AuthController {
 
         var user = userService.getUserByEmail(request.getEmail());
 
-        var token = jwtService.generateToken(user);
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        var cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/auth/refresh");
+        cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
+        cookie.setSecure(true);
+
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(new JwtResponse(accessToken));
     }
 }
