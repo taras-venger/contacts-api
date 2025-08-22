@@ -1,6 +1,9 @@
 package com.tvenger.contacts.controllers;
 
+import com.tvenger.contacts.dtos.JwtResponse;
 import com.tvenger.contacts.dtos.LoginRequest;
+import com.tvenger.contacts.services.JwtService;
+import com.tvenger.contacts.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +19,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest request) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
                 request.getPassword()
             )
         );
-        return ResponseEntity.ok().build();
+
+        var user = userService.getUserByEmail(request.getEmail());
+
+        var token = jwtService.generateToken(user);
+
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 }
